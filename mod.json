@@ -1,0 +1,12 @@
+{
+  "id": "mod_hub_ui",
+  "name": "Mod Hub",
+  "description": "One panel that opens the panels and options other mods add through the Mod Hub API.",
+  "version": "2.0.0",
+  "author": "iClawSuit",
+  "api": "1.2",
+  "entry": "Main",
+  "uses": ["extends"],
+  "drh": "17",
+  "dependencies": { "mod_hub_api": "1.0" }
+}
