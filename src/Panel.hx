@@ -85,12 +85,6 @@ class Panel {
 
 	var rowLabels:Sprite;
 
-	var debugLayer:Sprite;
-
-	var debug:Bool = false;
-
-	var debugLogged:Bool = false;
-
 	var closeButton:UIButton;
 
 	var langButton:UIButton;
@@ -166,11 +160,6 @@ class Panel {
 		frame.addChild(headerLabels);
 		rowLabels = HubArt.outlined();
 		frame.addChild(rowLabels);
-
-		debugLayer = new Sprite();
-		debugLayer.mouseEnabled = false;
-		debugLayer.mouseChildren = false;
-		frame.addChild(debugLayer);
 
 		var top = CY - H / 2;
 		var left = CX - W / 2 + MARGIN;
@@ -335,7 +324,6 @@ class Panel {
 		}
 		Ui.set(footer, lastMessage);
 		footer.textColor = lastColor;
-		drawDebug();
 	}
 
 	function renderList():Void {
@@ -520,119 +508,6 @@ class Panel {
 		var rect = button.root.getBounds(frame);
 		button.root.x += centerX - (rect.x + rect.width / 2);
 		button.root.y += centerY - (rect.y + rect.height / 2);
-	}
-
-	/** F8: shows the layout grid and the bounds of every control, so coordinates can be checked live. */
-	public function toggleDebug():Void {
-		debug = !debug;
-		debugLogged = false;
-		Log.write("debug layout=" + (debug ? "on" : "off"));
-		refresh();
-	}
-
-	function drawDebug():Void {
-		var g = debugLayer.graphics;
-		g.clear();
-		while (debugLayer.numChildren > 0)
-			debugLayer.removeChildAt(0);
-		if (!debug)
-			return;
-		frame.addChild(debugLayer);
-
-		var top = CY - H / 2;
-		var left = CX - W / 2 + MARGIN;
-		var right = CX + W / 2 - MARGIN;
-		var rowTop = top + 78;
-		var count = 0;
-		if (mode == 1 && settingsEntry != null && settingsEntry.settings != null) {
-			count = settingsEntry.settings.length - settingsPage * SETTINGS_ROWS;
-			if (count > SETTINGS_ROWS)
-				count = SETTINGS_ROWS;
-		} else {
-			count = Hub.all().length - page * LIST_ROWS;
-			if (count > LIST_ROWS)
-				count = LIST_ROWS;
-		}
-		if (count < 0)
-			count = 0;
-
-		g.lineStyle(1, 0x00E5FF, 0.9);
-		g.moveTo(left, top);
-		g.lineTo(left, top + H);
-		g.moveTo(right, top);
-		g.lineTo(right, top + H);
-		g.moveTo(CX, top);
-		g.lineTo(CX, top + H);
-		g.moveTo(left, top);
-		g.lineTo(right, top);
-		g.moveTo(left, top + H);
-		g.lineTo(right, top + H);
-
-		g.lineStyle(1, 0x7DFF7D, 0.9);
-		g.moveTo(left, rowTop - 2);
-		g.lineTo(right, rowTop - 2);
-		var i = 0;
-		while (i <= count) {
-			var y = rowTop + i * ROW;
-			g.moveTo(left, y);
-			g.lineTo(right, y);
-			i++;
-		}
-
-		g.lineStyle(1, 0xFFB000, 0.9);
-		g.moveTo(right - ACTION_W, rowTop - 2);
-		g.lineTo(right - ACTION_W, rowTop + count * ROW);
-		if (count > 1) {
-			g.moveTo(right - ACTION_W * 2 - 8, rowTop - 2);
-			g.lineTo(right - ACTION_W * 2 - 8, rowTop + count * ROW);
-		}
-
-		debugText("L " + Std.int(left), left + 2, rowTop - 16, 0x00E5FF);
-		debugText("R " + Std.int(right), right - 70, rowTop - 16, 0x00E5FF);
-		debugText("ROWS " + Std.int(rowTop) + " / " + Std.int(ROW), left + 2, rowTop - 28, 0x7DFF7D);
-		debugText("COL " + Std.int(right - ACTION_W), right - 150, rowTop - 28, 0xFFB000);
-
-		for (button in rowButtons)
-			debugButton(button, 0x00FF00);
-		for (toggle in switches)
-			debugBounds(toggle.root, 0x00FF00, "SW");
-		debugButton(langButton, 0x00FF00);
-		debugButton(prevButton, 0x00FF00);
-		debugButton(nextButton, 0x00FF00);
-		debugButton(backButton, 0x00FF00);
-		debugButton(closeButton, 0x00FF00);
-		debugLogged = true;
-	}
-
-	function debugButton(button:UIButton, color:Int):Void {
-		if (button == null || button.root == null || !button.root.visible)
-			return;
-		var name = button.label == null ? "" : button.label.text;
-		debugBounds(button.root, color, name);
-	}
-
-	function debugBounds(root:DisplayObject, color:Int, name:String):Void {
-		var rect = root.getBounds(frame);
-		var g = debugLayer.graphics;
-		g.lineStyle(1, color, 1);
-		g.drawRect(rect.x, rect.y, rect.width, rect.height);
-		var label = art.text(false, 7, color, 170, TextFormatAlign.LEFT);
-		label.text = (name == null || name == "" ? "" : name + " ")
-			+ Std.int(rect.x) + "," + Std.int(rect.y) + " " + Std.int(rect.width) + "x" + Std.int(rect.height);
-		label.x = rect.x;
-		label.y = rect.y - 8;
-		debugLayer.addChild(label);
-		if (!debugLogged)
-			Log.write("debug " + (name == null ? "" : name) + " x=" + Std.int(rect.x) + " y=" + Std.int(rect.y)
-				+ " w=" + Std.int(rect.width) + " h=" + Std.int(rect.height));
-	}
-
-	function debugText(text:String, x:Float, y:Float, color:Int):Void {
-		var label = art.text(false, 7, color, 180, TextFormatAlign.LEFT);
-		label.text = text;
-		label.x = x;
-		label.y = y;
-		debugLayer.addChild(label);
 	}
 
 	function movePage(delta:Int):Void {

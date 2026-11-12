@@ -19,8 +19,6 @@ import town.TownStateMachine;
 /** The hub shell: one key, one list of the panels and options other mods registered. */
 @:privateAccess
 class Main extends Mod {
-	static inline final F8:UInt = 119;
-
 	static inline final ESC:UInt = 27;
 
 	var ctx:Context;
@@ -421,10 +419,6 @@ class Main extends Mod {
 			return true;
 		}
 		if (panel != null) {
-			if (key == F8) {
-				panel.toggleDebug();
-				return true;
-			}
 			if (key == ESC) {
 				if (panel.isSettings())
 					panel.back();
